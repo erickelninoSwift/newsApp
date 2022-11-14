@@ -32,7 +32,7 @@ class NewsCell: UITableViewCell
     {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.systemFont(ofSize: 20, weight: .medium)
+        label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         label.textColor = .black
         label.numberOfLines = 3
         return label
@@ -43,7 +43,7 @@ class NewsCell: UITableViewCell
     {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        label.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         label.textColor = .lightGray
         label.numberOfLines = 10
         return label
@@ -54,9 +54,11 @@ class NewsCell: UITableViewCell
         let myImage = UIImageView()
         myImage.translatesAutoresizingMaskIntoConstraints = false
         myImage.clipsToBounds = true
+        myImage.layer.masksToBounds = true
         myImage.contentMode = .scaleAspectFill
         myImage.backgroundColor = .systemGray
         myImage.layer.cornerRadius = 5
+        
         return myImage
     }()
     
