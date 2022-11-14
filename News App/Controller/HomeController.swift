@@ -13,16 +13,17 @@ class HomeController: UIViewController
 {
     
     private let API_KEY = "e8772b0d460f47328230cef9da249306"
-   static let cell_ID = "MyCell"
-//    Tableview
-//    Custom Cell
-//    API CAller
-//    Open the new story
-//    Search for news
+    static let cell_ID = "MyCell"
+    //    Tableview
+    //    Custom Cell
+    //    API CAller
+    //    Open the new story
+    //    Search for news
+    private var searchController = UISearchController(searchResultsController: nil)
     
     private var viewModelCell = [NewsCellModel]()
     private var articles = [Article]()
-     var tableview: UITableView =
+    var tableview: UITableView =
     {
         let table = UITableView()
         table.register(NewsCell.self, forCellReuseIdentifier:NewsCell.cell_ID)
@@ -38,14 +39,52 @@ class HomeController: UIViewController
         tableview.dataSource = self
         tableview.rowHeight = 150
         fetchAllData()
+        configuresearch()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         tableview.frame = view.bounds
     }
+    
+    
+    private func configuresearch()
+    {
+        navigationItem.searchController = searchController
+        searchController.searchBar.delegate = self
+    }
 }
 
+extension HomeController: UISearchBarDelegate, UISearchResultsUpdating
+{
+    func updateSearchResults(for searchController: UISearchController) {
+        
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        
+       
+        guard let textQuery = searchBar.text , textQuery.isEmpty else { return }
+       
+        APICaller.shared.searchWithQuery(with: textQuery) { [weak self] (Result) in
+            switch Result
+            {
+            case .success(let myArticles):
+                
+                self?.articles = myArticles
+                self?.viewModelCell = myArticles.compactMap({
+                    NewsCellModel(viewModel: $0)
+                })
+                DispatchQueue.main.async {
+                    self?.tableview.reloadData()
+                }
+                self?.searchController.dismiss(animated: true, completion: nil)
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+}
 extension HomeController: UITableViewDelegate, UITableViewDataSource
 {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
