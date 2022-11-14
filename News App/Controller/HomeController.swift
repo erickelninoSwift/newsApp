@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SafariServices
 
 class HomeController: UIViewController
 {
@@ -20,7 +21,7 @@ class HomeController: UIViewController
 //    Search for news
     
     private var viewModelCell = [NewsCellModel]()
-    
+    private var articles = [Article]()
      var tableview: UITableView =
     {
         let table = UITableView()
@@ -61,9 +62,13 @@ extension HomeController: UITableViewDelegate, UITableViewDataSource
         return cell
     }
     
-    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        print("DEBUG: pressed")
+        let selectedArticles = articles[indexPath.row]
+        guard let url = URL(string: selectedArticles.url ?? "") else { return }
+        
+        let safariViewController = SFSafariViewController(url: url)
+        self.present(safariViewController, animated: true, completion: nil)
     }
     
     func fetchAllData()
@@ -72,6 +77,8 @@ extension HomeController: UITableViewDelegate, UITableViewDataSource
             switch Result
             {
             case .success(let myArticles):
+                
+                self?.articles = myArticles
                 DispatchQueue.main.async {
                     
                     self?.viewModelCell = myArticles.compactMap({
