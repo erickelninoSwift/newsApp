@@ -19,7 +19,7 @@ class HomeController: UIViewController
     //    API CAller
     //    Open the new story
     //    Search for news
-    private var searchController = UISearchController(searchResultsController: nil)
+    private var mysearchcontroller = UISearchController(searchResultsController: nil)
     
     private var viewModelCell = [NewsCellModel]()
     private var articles = [Article]()
@@ -50,37 +50,33 @@ class HomeController: UIViewController
     
     private func configuresearch()
     {
-        navigationItem.searchController = searchController
-        searchController.searchBar.delegate = self
+        navigationItem.searchController = mysearchcontroller
+        mysearchcontroller.searchResultsUpdater = self
+        
     }
 }
 
-extension HomeController: UISearchBarDelegate, UISearchResultsUpdating
+extension HomeController: UISearchResultsUpdating
 {
     func updateSearchResults(for searchController: UISearchController) {
         
-    }
-    
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        
-       
-        guard let textQuery = searchBar.text , textQuery.isEmpty else { return }
-       
-        APICaller.shared.searchWithQuery(with: textQuery) { [weak self] (Result) in
-            switch Result
-            {
-            case .success(let myArticles):
-                
-                self?.articles = myArticles
-                self?.viewModelCell = myArticles.compactMap({
-                    NewsCellModel(viewModel: $0)
-                })
-                DispatchQueue.main.async {
-                    self?.tableview.reloadData()
+        if let searchmessage = searchController.searchBar.text, !searchmessage.isEmpty
+        {
+            APICaller.shared.searchWithQuery(with: searchmessage) { [weak self] (Result) in
+                switch Result
+                {
+                case .success(let myArticles):
+                    
+                    self?.articles = myArticles
+                    self?.viewModelCell = myArticles.compactMap({
+                        NewsCellModel(viewModel: $0)
+                    })
+                    DispatchQueue.main.async {
+                        self?.tableview.reloadData()
+                    }
+                case .failure(let error):
+                    print(error)
                 }
-                self?.searchController.dismiss(animated: true, completion: nil)
-            case .failure(let error):
-                print(error)
             }
         }
     }
